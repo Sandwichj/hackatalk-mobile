@@ -1,6 +1,6 @@
 import { Button, EditText } from '@dooboo-ui/native';
 import { IC_CAMERA, IC_PROFILE } from '../../utils/Icons';
-import { Image, ImageResolvedAssetSource, ImageSourcePropType, TouchableOpacity, View } from 'react-native';
+import { Image, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { launchCameraAsync, launchImageLibraryAsync } from '../../utils/ImagePicker';
 
