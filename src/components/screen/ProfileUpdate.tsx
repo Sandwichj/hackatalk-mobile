@@ -1,8 +1,10 @@
+import { Alert, Image, TouchableOpacity, View } from 'react-native';
 import { Button, EditText } from '@dooboo-ui/native';
 import { IC_CAMERA, IC_PROFILE } from '../../utils/Icons';
-import { Image, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { launchCameraAsync, launchImageLibraryAsync } from '../../utils/ImagePicker';
+import AsyncStorage from '@react-native-community/async-storage';
+import Config from 'react-native-config';
 
 import { EditTextInputType } from '@dooboo-ui/native/lib/EditText';
 import { MainStackNavigationProps } from '../navigation/MainStackNavigator';
@@ -84,7 +86,7 @@ function Screen(props: Props): React.ReactElement {
     }
   }, [isUpdating]);
 
-  const updateProfile = async (): Promise<void> => {
+  const updateProfile = async (uri: string): Promise<void> => {
     setIsUpdating(true);
   };
 
@@ -101,6 +103,45 @@ function Screen(props: Props): React.ReactElement {
         setstatusMessage(text);
         break;
     }
+  };
+
+  const uploadImage = async (uri: string): Promise<string> => {
+    interface FetchOption {
+      method: string;
+      body: FormData;
+      headers: {
+        Authorization: string;
+      };
+    }
+
+    const fileName = uri.split('/').pop() || '';
+    const fileTypeMatch = /\.(\w+)$/.exec(fileName);
+    const data: FormData = new FormData();
+    const token = await AsyncStorage.getItem('token');
+    data.append('inputFile', {
+      uri: uri,
+      type: fileTypeMatch ? `image/${fileTypeMatch[1]}` : 'image',
+      name: fileName,
+    });
+
+    const fetchInitOption: FetchOption = {
+      method: 'POST',
+      body: data,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = fetch(Config.ROOT_URL + '/upload_single', fetchInitOption);
+
+    return new Promise((resolve) => {
+      response
+        .then((res: Response) => { resolve(res.url); })
+        .catch(() => {
+          Alert.alert(getString('ERROR'), getString('ERROR_OCCURED'));
+          resolve('');
+        });
+    });
   };
 
   const pressProfileImage = async (): Promise<void> => {
@@ -124,6 +165,7 @@ function Screen(props: Props): React.ReactElement {
               maxWidth: DEFAULT.PROFILEIMAGE_WIDTH,
               maxHeight: DEFAULT.PROFILEIMAGE_HEIGHT,
             });
+            const imageURL = await uploadImage(resizedImage.uri);
 
             setProfilePath(resizedImage.uri);
           }
@@ -138,6 +180,7 @@ function Screen(props: Props): React.ReactElement {
               maxWidth: DEFAULT.PROFILEIMAGE_WIDTH,
               maxHeight: DEFAULT.PROFILEIMAGE_HEIGHT,
             });
+            const imageURL = await uploadImage(resizedImage.uri);
 
             setProfilePath(resizedImage.uri);
           }
