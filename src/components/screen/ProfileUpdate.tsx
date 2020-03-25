@@ -106,26 +106,18 @@ function Screen(props: Props): React.ReactElement {
   };
 
   const uploadImage = async (uri: string): Promise<string> => {
-    interface FetchOption {
-      method: string;
-      body: {
-        inputFile: FormData;
-        dir?: string;
-      };
-      headers: Headers;
-    }
-
     const fileName = uri.split('/').pop() || '';
     const fileTypeMatch = /\.(\w+)$/.exec(fileName);
+    const fileType = fileTypeMatch ? `image/${fileTypeMatch[1]}` : 'image';
     const data: FormData = new FormData();
     const token = await AsyncStorage.getItem('token');
     data.append('profile', {
       uri: uri,
-      type: fileTypeMatch ? `image/${fileTypeMatch[1]}` : 'image',
+      type: fileType,
       name: fileName,
     });
 
-    const fetchInitOption: FetchOption = {
+    const fetchInitOption = {
       method: 'POST',
       body: {
         inputFile: data,
@@ -137,7 +129,7 @@ function Screen(props: Props): React.ReactElement {
       }),
     };
 
-    return fetch(Config.ROOT_URL + '/upload_single', fetchInitOption)
+    return fetch(`${Config.ROOT_URL}/upload_single`, fetchInitOption)
       .then((res: Response) => res.url)
       .catch(() => {
         Alert.alert(getString('ERROR'), getString('ERROR_OCCURED'));
