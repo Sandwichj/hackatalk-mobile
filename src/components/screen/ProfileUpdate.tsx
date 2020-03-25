@@ -86,7 +86,7 @@ function Screen(props: Props): React.ReactElement {
     }
   }, [isUpdating]);
 
-  const updateProfile = async (uri: string): Promise<void> => {
+  const updateProfile = async (): Promise<void> => {
     setIsUpdating(true);
   };
 
