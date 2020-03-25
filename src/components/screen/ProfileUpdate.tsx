@@ -168,7 +168,7 @@ function Screen(props: Props): React.ReactElement {
             });
             const imageURL = await uploadImage(resizedImage.uri);
 
-            setProfilePath(resizedImage.uri);
+            setProfilePath(imageURL);
           }
           return;
         }
@@ -183,7 +183,7 @@ function Screen(props: Props): React.ReactElement {
             });
             const imageURL = await uploadImage(resizedImage.uri);
 
-            setProfilePath(resizedImage.uri);
+            setProfilePath(imageURL);
           }
         }
       },
